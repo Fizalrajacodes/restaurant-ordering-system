@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="20.0" styleClass="dashboard-content" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.restaurant.admin.controller.DashboardController">
+    <padding>
+        <Insets bottom="20.0" left="30.0" right="30.0" top="20.0" />
+    </padding>
+    <children>
+        <!-- Stats Grid -->
+        <GridPane fx:id="statsGrid" hgap="20.0" vgap="20.0" styleClass="stats-grid">
+            <columnConstraints>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" prefWidth="250.0" />
+                <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" prefWidth="250.0" />
+                <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" prefWidth="250.0" />
+                <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" prefWidth="250.0" />
+            </columnConstraints>
+            <children>
+                <!-- Total Orders -->
+                <VBox fx:id="totalOrdersCard" styleClass="stat-card" GridPane.columnIndex="0">
+                    <children>
+                        <Label styleClass="stat-label" text="Total Orders" />
+                        <Label fx:id="totalOrdersValue" styleClass="stat-value" text="0" />
+                    </children>
+                </VBox>
+                <!-- Today's Orders -->
+                <VBox fx:id="todaysOrdersCard" styleClass="stat-card" GridPane.columnIndex="1">
+                    <children>
+                        <Label styleClass="stat-label" text="Today's Orders" />
+                        <Label fx:id="todaysOrdersValue" styleClass="stat-value" text="0" />
+                    </children>
+                </VBox>
+                <!-- Pending Orders -->
+                <VBox fx:id="pendingOrdersCard" styleClass="stat-card" GridPane.columnIndex="2">
+                    <children>
+                        <Label styleClass="stat-label" text="Pending" />
+                        <Label fx:id="pendingOrdersValue" styleClass="stat-value" text="0" />
+                    </children>
+                </VBox>
+                <!-- Preparing Orders -->
+                <VBox fx:id="preparingOrdersCard" styleClass="stat-card" GridPane.columnIndex="3">
+                    <children>
+                        <Label styleClass="stat-label" text="Preparing" />
+                        <Label fx:id="preparingOrdersValue" styleClass="stat-value" text="0" />
+                    </children>
+                </VBox>
+                <!-- Ready Orders -->
+                <VBox fx:id="readyOrdersCard" styleClass="stat-card" GridPane.rowIndex="1" GridPane.columnIndex="0">
+                    <children>
+                        <Label styleClass="stat-label" text="Ready" />
+                        <Label fx:id="readyOrdersValue" styleClass="stat-value" text="0" />
+                    </children>
+                </VBox>
+                <!-- Completed Orders -->
+                <VBox fx:id="completedOrdersCard" styleClass="stat-card" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                    <children>
+                        <Label styleClass="stat-label" text="Completed" />
+                        <Label fx:id="completedOrdersValue" styleClass="stat-value" text="0" />
+                    </children>
+                </VBox>
+                <!-- Today's Revenue -->
+                <VBox fx:id="todaysRevenueCard" styleClass="stat-card" GridPane.rowIndex="1" GridPane.columnIndex="2">
+                    <children>
+                        <Label styleClass="stat-label" text="Today's Revenue" />
+                        <Label fx:id="todaysRevenueValue" styleClass="stat-value" text="₹0.00" />
+                    </children>
+                </VBox>
+                <!-- Total Revenue -->
+                <VBox fx:id="totalRevenueCard" styleClass="stat-card" GridPane.rowIndex="1" GridPane.columnIndex="3">
+                    <children>
+                        <Label styleClass="stat-label" text="Total Revenue" />
+                        <Label fx:id="totalRevenueValue" styleClass="stat-value" text="₹0.00" />
+                    </children>
+                </VBox>
+            </children>
+        </GridPane>
+        
+        <!-- Charts Section -->
+        <HBox spacing="20.0" styleClass="charts-row">
+            <children>
+                <!-- Recent Orders -->
+                <VBox fx:id="recentOrdersCard" prefWidth="600.0" styleClass="card chart-card" HBox.hgrow="ALWAYS">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" prefHeight="50.0" styleClass="card-header">
+                            <padding>
+                                <Insets left="20.0" right="20.0" />
+                            </padding>
+                            <children>
+                                <Label styleClass="card-title" text="Recent Orders" />
+                                <Label styleClass="card-subtitle" text="Latest 10 orders" HBox.hgrow="ALWAYS" />
+                            </children>
+                        </HBox>
+                        <ScrollPane fitToWidth="true" styleClass="card-content" VBox.vgrow="ALWAYS">
+                            <content>
+                                <VBox fx:id="recentOrdersList" spacing="0.0" />
+                            </content>
+                        </ScrollPane>
+                    </children>
+                </VBox>
+                
+                <!-- Top Selling Items -->
+                <VBox fx:id="topItemsCard" prefWidth="600.0" styleClass="card chart-card" HBox.hgrow="ALWAYS">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" prefHeight="50.0" styleClass="card-header">
+                            <padding>
+                                <Insets left="20.0" right="20.0" />
+                            </padding>
+                            <children>
+                                <Label styleClass="card-title" text="Top Selling Items" />
+                                <Label styleClass="card-subtitle" text="Today's best sellers" HBox.hgrow="ALWAYS" />
+                            </children>
+                        </HBox>
+                        <ScrollPane fitToWidth="true" styleClass="card-content" VBox.vgrow="ALWAYS">
+                            <content>
+                                <VBox fx:id="topItemsList" spacing="0.0" />
+                            </content>
+                        </ScrollPane>
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+    </children>
+</VBox>

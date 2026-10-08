@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${restaurantName} + ' - Menu'">Menu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/customer.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex flex-column min-vh-100">
+        <header th:replace="~{fragments/header :: header}"></header>
+
+        <main class="flex-grow-1">
+            <div class="container py-4">
+                <!-- Search Bar -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0" id="searchInput" placeholder="Search dishes...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categories Tabs -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="nav nav-pills nav-fill" id="categoryTabs" role="tablist">
+                            <button class="nav-link active" id="all-tab" data-bs-toggle="pill" data-bs-target="#all" type="button" role="tab">
+                                All
+                            </button>
+                            <button th:each="category : ${categories}" 
+                                    class="nav-link" 
+                                    th:id="${category.id} + '-tab'" 
+                                    th:data-bs-target="'#' + ${category.id}" 
+                                    data-bs-toggle="pill" 
+                                    type="button" 
+                                    role="tab"
+                                    th:text="${category.name}">Category</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Menu Items -->
+                <div class="tab-content" id="menuTabContent">
+                    <div class="tab-pane fade show active" id="all" role="tabpanel">
+                        <div class="row g-3" id="allItemsContainer">
+                            <!-- All items loaded via JS -->
+                        </div>
+                    </div>
+                    
+                    <div th:each="category : ${categories}" 
+                         class="tab-pane fade" 
+                         th:id="${category.id}" 
+                         role="tabpanel">
+                        <div class="row g-3" th:id="${category.id} + 'Items'">
+                            <!-- Category items loaded via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="cartModalLabel"><i class="bi bi-cart3"></i> Your Cart</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="cartModalBody">
+                    <div class="text-center py-5" id="emptyCart">
+                        <i class="bi bi-cart-x display-1 text-muted"></i>
+                        <p class="mt-2 text-muted">Your cart is empty</p>
+                    </div>
+                    <div id="cartItemsContainer" style="display: none;">
+                        <!-- Cart items loaded via JS -->
+                    </div>
+                </div>
+                <div class="modal-footer" id="cartModalFooter" style="display: none;">
+                    <div class="w-100">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal</span>
+                            <span id="cartSubtotal">₹0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tax (5%)</span>
+                            <span id="cartTax">₹0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between fw-bold fs-5">
+                            <span>Total</span>
+                            <span id="cartTotal">₹0.00</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-lg w-100 mt-3" id="checkoutBtn" disabled>
+                        Proceed to Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="checkoutModalLabel"><i class="bi bi-person-check"></i> Customer Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="checkoutForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Customer Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="customerName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Mobile Number <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" id="customerMobile" placeholder="9876543210" pattern="[6-9]\d{9}" required>
+                                <div class="form-text">10-digit mobile number starting with 6-9</div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Email (Optional)</label>
+                                <input type="email" class="form-control" id="customerEmail">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Special Instructions</label>
+                                <textarea class="form-control" id="specialInstructions" rows="2" placeholder="e.g., Less spicy, no onions"></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back to Cart</button>
+                    <button type="button" class="btn btn-primary" id="proceedToPaymentBtn">
+                        Proceed to Payment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 mb-0" id="loadingText">Processing...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.2/dist/axios.min.js"></script>
+    <script th:src="@{/js/customer.js}"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const API_BASE_URL = '/api';
+        const TABLE_TOKEN = /*[[${tableToken}]]*/ '';
+        const TABLE_NUMBER = /*[[${tableNumber}]]*/ '';
+        const RESTAURANT_NAME = /*[[${restaurantName}]]*/ 'Restaurant';
+        const RESTAURANT_LOGO = /*[[${restaurantLogo}]]*/ '/images/logo.png';
+        const RESTAURANT_ADDRESS = /*[[${restaurantAddress}]]*/ '';
+        const RESTAURANT_PHONE = /*[[${restaurantPhone}]]*/ '';
+        /*]]>*/
+    </script>
+</body>
+</html>

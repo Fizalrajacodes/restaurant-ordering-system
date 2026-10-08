@@ -1,0 +1,2 @@
+$content = (Get-Content 'C:\Users\fizal\OneDrive\Desktop\MY PROJECTS\RESTURANT ORDERING SYSTEM\restaurant-ordering-system\frontend\java\src\main\resources\fxml\login_fixed.fxml' -Raw).Replace('&', '&')
+Set-Content 'C:\Users\fizal\OneDrive\Desktop\MY PROJECTS\RESTURANT ORDERING SYSTEM\restaurant-ordering-system\frontend\java\src\main\resources\fxml\login.fxml' $content

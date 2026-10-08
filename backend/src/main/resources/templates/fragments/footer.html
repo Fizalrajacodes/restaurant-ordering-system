@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <footer th:fragment="footer" class="bg-dark text-white text-center py-3 mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h6 th:text="${restaurantName}">Restaurant</h6>
+                    <p class="small mb-0" th:text="${restaurantAddress}">123 Restaurant Street</p>
+                    <p class="small mb-0" th:text="${restaurantPhone}">+91-9876543210</p>
+                </div>
+                <div class="col-md-4">
+                    <h6>Quick Links</h6>
+                    <ul class="list-unstyled small">
+                        <li><a href="#" class="text-white text-decoration-none">Menu</a></li>
+                        <li><a href="#" class="text-white text-decoration-none">Contact</a></li>
+                        <li><a href="#" class="text-white text-decoration-none">About</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6>Follow Us</h6>
+                    <div>
+                        <a href="#" class="text-white me-3"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-white me-3"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-white me-3"><i class="bi bi-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-3">
+            <p class="small mb-0">&copy; 2024 <span th:text="${restaurantName}">Restaurant</span>. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

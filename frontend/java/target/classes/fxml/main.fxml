@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane fx:id="rootPane" prefHeight="800" prefWidth="1200" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.restaurant.admin.controller.MainController">
+    <left>
+        <!-- Sidebar -->
+        <VBox fx:id="sidebar" prefWidth="260" styleClass="sidebar" BorderPane.alignment="CENTER">
+            <children>
+                <!-- Logo Section -->
+                <VBox alignment="CENTER" prefHeight="120" spacing="10.0" styleClass="sidebar-header">
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                    </padding>
+                    <children>
+                        <Label styleClass="sidebar-logo" text="🍽️" />
+                        <Label styleClass="sidebar-title" text="Smart Restaurant" />
+                        <Label styleClass="sidebar-subtitle" text="Admin Dashboard" />
+                    </children>
+                </VBox>
+                <Separator styleClass="sidebar-separator" />
+                
+                <!-- Navigation Menu -->
+                <ScrollPane fitToWidth="true" styleClass="sidebar-scroll" VBox.vgrow="ALWAYS">
+                    <content>
+                        <VBox fx:id="navMenu" spacing="5.0">
+                            <padding>
+                                <Insets bottom="20.0" left="10.0" right="10.0" top="20.0" />
+                            </padding>
+                            <children>
+                                <!-- Dashboard -->
+                                <Button fx:id="dashboardBtn" maxWidth="1.7976931348623157E308" onAction="#handleNavigation" styleClass="nav-button" text="Dashboard">
+                                    <graphic>
+                                        <Label styleClass="nav-icon" text="📊" />
+                                    </graphic>
+                                </Button>
+                                
+                                <!-- Orders -->
+                                <Button fx:id="ordersBtn" maxWidth="1.7976931348623157E308" onAction="#handleNavigation" styleClass="nav-button" text="Orders">
+                                    <graphic>
+                                        <Label styleClass="nav-icon" text="📋" />
+                                    </graphic>
+                                </Button>
+                                
+                                <!-- Menu Management -->
+                                <Button fx:id="menuBtn" maxWidth="1.7976931348623157E308" onAction="#handleNavigation" styleClass="nav-button" text="Menu">
+                                    <graphic>
+                                        <Label styleClass="nav-icon" text="🍽️" />
+                                    </graphic>
+                                </Button>
+                                
+                                <!-- Categories -->
+                                <Button fx:id="categoriesBtn" maxWidth="1.7976931348623157E308" onAction="#handleNavigation" styleClass="nav-button" text="Categories">
+                                    <graphic>
+                                        <Label styleClass="nav-icon" text="📂" />
+                                    </graphic>
+                                </Button>
+                                
+                                <!-- Tables -->
+                                <Button fx:id="tablesBtn" maxWidth="1.7976931348623157E308" onAction="#handleNavigation" styleClass="nav-button" text="Tables">
+                                    <graphic>
+                                        <Label styleClass="nav-icon" text="🪑" />
+                                    </graphic>
+                                </Button>
+                                
+                                <!-- QR Codes -->
+                                <Button fx:id="qrCodesBtn" maxWidth="1.7976931348623157E308" onAction="#handleNavigation" styleClass="nav-button" text="QR Codes">
+                                    <graphic>
+                                        <Label styleClass="nav-icon" text="📱" />
+                                    </graphic>
+                                </Button>
+                                
+                                <!-- Reports -->
+                                <Button fx:id="reportsBtn" maxWidth="1.7976931348623157E308" onAction="#handleNavigation" styleClass="nav-button" text="Reports">
+                                    <graphic>
+                                        <Label styleClass="nav-icon" text="📈" />
+                                    </graphic>
+                                </Button>
+                                
+                                <!-- Settings -->
+                                <Button fx:id="settingsBtn" maxWidth="1.7976931348623157E308" onAction="#handleNavigation" styleClass="nav-button" text="Settings">
+                                    <graphic>
+                                        <Label styleClass="nav-icon" text="⚙️" />
+                                    </graphic>
+                                </Button>
+                            </children>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+                
+                <!-- User Section -->
+                <VBox alignment="CENTER" spacing="10.0" styleClass="sidebar-footer">
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                    </padding>
+                    <children>
+                        <Separator styleClass="sidebar-separator" />
+                        <HBox alignment="CENTER_LEFT" spacing="12.0" fillHeight="false">
+                            <children>
+                                <Label styleClass="user-avatar" text="👤" />
+                                <VBox spacing="2.0">
+                                    <children>
+                                        <Label fx:id="userNameLabel" styleClass="user-name" text="Admin User" />
+                                        <Label fx:id="userRoleLabel" styleClass="user-role" text="Administrator" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+                        <Button fx:id="logoutBtn" maxWidth="1.7976931348623157E308" onAction="#handleLogout" styleClass="nav-button logout-button" text="Logout">
+                            <graphic>
+                                <Label styleClass="nav-icon" text="🚪" />
+                            </graphic>
+                        </Button>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </left>
+    
+    <center>
+        <!-- Main Content Area -->
+        <BorderPane fx:id="contentPane" styleClass="content-pane">
+            <top>
+                <!-- Top Bar -->
+                <HBox fx:id="topBar" alignment="CENTER_LEFT" prefHeight="70" styleClass="top-bar" BorderPane.alignment="CENTER">
+                    <padding>
+                        <Insets left="30.0" right="30.0" />
+                    </padding>
+                    <children>
+                        <Label fx:id="pageTitle" styleClass="page-title" text="Dashboard" />
+                        <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Button fx:id="refreshBtn" onAction="#handleRefresh" styleClass="top-bar-button" text="Refresh">
+                                    <graphic>
+                                        <Label styleClass="button-icon" text="🔄" />
+                                    </graphic>
+                                </Button>
+                                <Button fx:id="notificationBtn" onAction="#handleNotifications" styleClass="top-bar-button" text="Notifications">
+                                    <graphic>
+                                        <Label styleClass="button-icon" text="🔔" />
+                                    </graphic>
+                                </Button>
+                            </children>
+                        </HBox>
+                    </children>
+                </HBox>
+            </top>
+            <center>
+                <!-- Tabbed Content -->
+                <TabPane fx:id="contentTabPane" styleClass="content-tab-pane" tabClosingPolicy="UNAVAILABLE">
+                    <tabs>
+                        <Tab fx:id="dashboardTab" text="Dashboard" closable="false">
+                            <content>
+                                <fx:include fx:id="dashboardView" source="dashboard.fxml" />
+                            </content>
+                        </Tab>
+                        <Tab fx:id="ordersTab" text="Orders" closable="false">
+                            <content>
+                                <fx:include fx:id="ordersView" source="orders.fxml" />
+                            </content>
+                        </Tab>
+                        <Tab fx:id="menuTab" text="Menu" closable="false">
+                            <content>
+                                <fx:include fx:id="menuView" source="menu.fxml" />
+                            </content>
+                        </Tab>
+                        <Tab fx:id="categoriesTab" text="Categories" closable="false">
+                            <content>
+                                <fx:include fx:id="categoriesView" source="categories.fxml" />
+                            </content>
+                        </Tab>
+                        <Tab fx:id="tablesTab" text="Tables" closable="false">
+                            <content>
+                                <fx:include fx:id="tablesView" source="tables.fxml" />
+                            </content>
+                        </Tab>
+                        <Tab fx:id="qrCodesTab" text="QR Codes" closable="false">
+                            <content>
+                                <fx:include fx:id="qrCodesView" source="qrcodes.fxml" />
+                            </content>
+                        </Tab>
+                        <Tab fx:id="reportsTab" text="Reports" closable="false">
+                            <content>
+                                <fx:include fx:id="reportsView" source="reports.fxml" />
+                            </content>
+                        </Tab>
+                        <Tab fx:id="settingsTab" text="Settings" closable="false">
+                            <content>
+                                <fx:include fx:id="settingsView" source="settings.fxml" />
+                            </content>
+                        </Tab>
+                    </tabs>
+                </TabPane>
+            </center>
+        </BorderPane>
+    </center>
+</BorderPane>

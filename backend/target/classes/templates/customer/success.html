@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Order Success - ' + ${restaurantName}">Order Success</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link th:href="@{/css/customer.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex flex-column min-vh-100">
+        <header th:replace="~{fragments/header :: header}"></header>
+
+        <main class="flex-grow-1 d-flex align-items-center justify-content-center py-5">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-8 col-lg-6">
+                        <div class="card shadow-lg border-0">
+                            <div class="card-body text-center p-5">
+                                <!-- Success Animation -->
+                                <div class="mb-4">
+                                    <div class="success-checkmark">
+                                        <div class="check-icon">✓</div>
+                                        <div class="check-circle"></div>
+                                    </div>
+                                </div>
+
+                                <h2 class="text-success mb-1">Order Confirmed!</h2>
+                                <p class="text-muted mb-4">Your order has been successfully placed</p>
+
+                                <!-- Order Details Card -->
+                                <div class="card bg-light mb-4">
+                                    <div class="card-body">
+                                        <div class="row g-3 text-start">
+                                            <div class="col-6">
+                                                <small class="text-muted d-block">Order Number</small>
+                                                <strong th:text="${order.orderNumber}">#ORD-0001</strong>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted d-block">Table</small>
+                                                <strong th:text="${order.tableName}">Table 01</strong>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted d-block">Customer</small>
+                                                <strong th:text="${order.customerName}">John Doe</strong>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted d-block">Mobile</small>
+                                                <strong th:text="${order.customerMobile}">9876543210</strong>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted d-block">Payment</small>
+                                                <strong class="text-success">
+                                                    <i class="bi bi-check-circle-fill me-1"></i>Paid
+                                                </strong>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted d-block">Total</small>
+                                                <strong class="fs-5" th:text="'₹' + ${order.totalAmount}">₹588.00</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Ordered Items -->
+                                <div class="card bg-light mb-4">
+                                    <div class="card-header fw-bold">Ordered Items</div>
+                                    <div class="card-body p-0">
+                                        <ul class="list-group list-group-flush">
+                                            <li th:each="item : ${order.items}" class="list-group-item d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <div class="fw-medium" th:text="${item.itemName}">Chicken Biryani</div>
+                                                    <small class="text-muted" th:text="${item.quantity} + ' × ₹' + ${item.unitPrice}">2 × ₹220</small>
+                                                </div>
+                                                <span class="fw-bold" th:text="'₹' + ${item.totalPrice}">₹440</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="d-grid gap-2">
+                                    <a th:href="@{/menu(table=${tableToken})}" class="btn btn-primary btn-lg">
+                                        <i class="bi bi-arrow-left me-2"></i>Back to Menu
+                                    </a>
+                                    <button class="btn btn-outline-secondary" onclick="window.print()">
+                                        <i class="bi bi-printer me-2"></i>Print Receipt
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer th:replace="~{fragments/footer :: footer}"></footer>
+    </div>
+
+    <style>
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .check-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #28a745;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            animation: scaleIn 0.5s ease-out;
+        }
+        .check-circle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #28a745;
+            animation: pulse 1s ease-out infinite;
+        }
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/customer.js}"></script>
+</body>
+</html>
