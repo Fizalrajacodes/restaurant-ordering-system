@@ -1,10 +1,12 @@
 package com.restaurant.service;
 
 import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.restaurant.dtos.qr.GenerateQRRequest;
 import com.restaurant.dtos.qr.QRCodePrintResponse;
 import com.restaurant.dtos.qr.QRCodeResponse;
@@ -16,6 +18,7 @@ import com.restaurant.repository.RestaurantTableRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,41 +50,61 @@ public class QRCodeService {
     @Value("${qr.size:300}")
     private int qrSize;
 
+    @Value("${qr.error-correction:L}")
+    private String qrErrorCorrection;
+
     @Value("${qr.storage-path:./qr-codes}")
     private String qrStoragePath;
+
+    public byte[] generateQrImage(String data) {
+        return generateQrImage(data, qrSize, qrErrorCorrection);
+    }
+
+    public byte[] generateQrImage(String data, int size, String errorCorrection) {
+        try {
+            return generateQRCodeImage(data, size, errorCorrection);
+        } catch (WriterException | IOException e) {
+            throw new IllegalStateException("Failed to generate QR code image for data: " + data, e);
+        }
+    }
 
     @Transactional
     public QRCodeResponse generateQRCode(GenerateQRRequest request) {
         RestaurantTable table = tableRepository.findById(request.getTableId())
                 .orElseThrow(() -> new ResourceNotFoundException("Table not found with id: " + request.getTableId()));
 
-        String token = generateUniqueToken();
-        String qrData = buildQrUrl(request.getBaseUrl() != null ? request.getBaseUrl() : baseUrl, token);
+        // If QR code already exists for this table, return it
+        return qrCodeRepository.findByTable(table)
+                .map(this::mapToResponse)
+                .orElseGet(() -> {
+                    String token = generateUniqueToken();
+                    String qrData = buildQrUrl(request.getBaseUrl() != null ? request.getBaseUrl() : baseUrl, token);
 
-        QRCode qrCode = QRCode.builder()
-                .table(table)
-                .token(token)
-                .qrData(qrData)
-                .isActive(true)
-                .build();
+                    QRCode qrCode = QRCode.builder()
+                            .table(table)
+                            .token(token)
+                            .qrData(qrData)
+                            .isActive(true)
+                            .build();
 
-        try {
-            byte[] imageData = generateQRCodeImage(qrData);
-            qrCode.setImageData(imageData);
-            
-            // Save QR code image as file
-            String filePath = saveQRCodeImageToFile(table.getTableNumber(), token, imageData);
-            log.info("QR code image saved to: {}", filePath);
-        } catch (Exception e) {
-            log.error("Failed to generate QR code image for table: {}", table.getTableNumber(), e);
-        }
+                    try {
+                        byte[] imageData = generateQRCodeImage(qrData, qrSize, qrErrorCorrection);
+                        qrCode.setImageData(imageData);
+                        qrCode.setImageUrl(toImageDataUrl(qrCode));
+                        
+                        String filePath = saveQRCodeImageToFile(table.getTableNumber(), token, imageData);
+                        log.info("QR code image saved to: {}", filePath);
+                    } catch (Exception e) {
+                        log.error("Failed to generate QR code image for table: {}", table.getTableNumber(), e);
+                    }
 
-        qrCode = qrCodeRepository.save(qrCode);
-        table.setQrToken(token);
-        table.setQrCodeUrl(qrCode.getImageUrl());
-        tableRepository.save(table);
+                    qrCode = qrCodeRepository.save(qrCode);
+                    table.setQrToken(token);
+                    table.setQrCodeUrl(qrCode.getImageUrl());
+                    tableRepository.save(table);
 
-        return mapToResponse(qrCode);
+                    return mapToResponse(qrCode);
+                });
     }
 
     @Transactional
@@ -89,11 +112,14 @@ public class QRCodeService {
         RestaurantTable table = tableRepository.findById(tableId)
                 .orElseThrow(() -> new ResourceNotFoundException("Table not found with id: " + tableId));
 
+        // Delete existing QR code first
         qrCodeRepository.findByTable(table).ifPresent(existing -> {
-            existing.setIsActive(false);
-            qrCodeRepository.save(existing);
+            log.info("Deleting existing QR code for table: {}", table.getTableNumber());
+            qrCodeRepository.delete(existing);
+            qrCodeRepository.flush();
         });
 
+        // Generate new QR code
         return generateQRCode(GenerateQRRequest.builder().tableId(tableId).build());
     }
 
@@ -167,7 +193,7 @@ public class QRCodeService {
     private String generateUniqueToken() {
         String token;
         do {
-            token = "TBL-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+            token = "TBL-" + System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 12).toUpperCase();
         } while (qrCodeRepository.existsByToken(token));
         return token;
     }
@@ -177,12 +203,33 @@ public class QRCodeService {
     }
 
     private byte[] generateQRCodeImage(String data) throws WriterException, IOException {
+        return generateQRCodeImage(data, qrSize, qrErrorCorrection);
+    }
+
+    private byte[] generateQRCodeImage(String data, int size, String errorCorrection) throws WriterException, IOException {
+        java.util.Map<EncodeHintType, Object> hints = new java.util.HashMap<>();
+        hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+        hints.put(EncodeHintType.ERROR_CORRECTION, resolveErrorCorrectionLevel(errorCorrection));
+        hints.put(EncodeHintType.MARGIN, 1);
+
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        BitMatrix bitMatrix = qrCodeWriter.encode(data, BarcodeFormat.QR_CODE, qrSize, qrSize);
-        
+        BitMatrix bitMatrix = qrCodeWriter.encode(data, BarcodeFormat.QR_CODE, size, size, hints);
+
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
         return outputStream.toByteArray();
+    }
+
+    private ErrorCorrectionLevel resolveErrorCorrectionLevel(String level) {
+        if (level == null) {
+            return ErrorCorrectionLevel.L;
+        }
+        return switch (level.toUpperCase()) {
+            case "H" -> ErrorCorrectionLevel.H;
+            case "Q" -> ErrorCorrectionLevel.Q;
+            case "M" -> ErrorCorrectionLevel.M;
+            default -> ErrorCorrectionLevel.L;
+        };
     }
 
     private QRCodeResponse mapToResponse(QRCode qrCode) {

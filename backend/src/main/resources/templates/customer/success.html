@@ -10,7 +10,20 @@
 </head>
 <body>
     <div class="d-flex flex-column min-vh-100">
-        <header th:replace="~{fragments/header :: header}"></header>
+        <!-- Simple Header -->
+        <header class="bg-dark text-white py-3 sticky-top">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <img th:src="${restaurantLogo}" alt="Logo" class="me-2" style="height: 40px;">
+                        <div>
+                            <h4 class="mb-0" th:text="${restaurantName}">Restaurant Name</h4>
+                            <small th:if="${tableNumber}" th:text="'Table ' + ${tableNumber}">Table 01</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
 
         <main class="flex-grow-1 d-flex align-items-center justify-content-center py-5">
             <div class="container">
@@ -21,21 +34,31 @@
                                 <!-- Success Animation -->
                                 <div class="mb-4">
                                     <div class="success-checkmark">
-                                        <div class="check-icon">✓</div>
-                                        <div class="check-circle"></div>
+                                        <div class="check-icon">
+                                            <span class="icon-line icon-line-left"></span>
+                                            <span class="icon-line icon-line-right"></span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <h2 class="text-success mb-1">Order Confirmed!</h2>
-                                <p class="text-muted mb-4">Your order has been successfully placed</p>
+                                <h1 class="text-success mb-3">Order Confirmed!</h1>
+                                <p class="text-muted mb-4">Your order has been placed successfully.</p>
 
-                                <!-- Order Details Card -->
-                                <div class="card bg-light mb-4">
+                                <!-- Order Details -->
+                                <div class="card bg-light mb-4 text-start">
+                                    <div class="card-header fw-bold">Order Details</div>
                                     <div class="card-body">
-                                        <div class="row g-3 text-start">
+                                        <div class="row">
                                             <div class="col-6">
-                                                <small class="text-muted d-block">Order Number</small>
-                                                <strong th:text="${order.orderNumber}">#ORD-0001</strong>
+                                                <small class="text-muted d-block">Order ID</small>
+                                                <strong th:text="${order.orderNumber}">ORD-20240101</strong>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-muted d-block">Status</small>
+                                                <strong class="text-success">
+                                                    <i class="bi bi-check-circle-fill me-1"></i>
+                                                    <span th:text="${order.orderStatus}">CONFIRMED</span>
+                                                </strong>
                                             </div>
                                             <div class="col-6">
                                                 <small class="text-muted d-block">Table</small>
@@ -64,7 +87,7 @@
                                 </div>
 
                                 <!-- Ordered Items -->
-                                <div class="card bg-light mb-4">
+                                <div class="card bg-light mb-4 text-start">
                                     <div class="card-header fw-bold">Ordered Items</div>
                                     <div class="card-body p-0">
                                         <ul class="list-group list-group-flush">
@@ -90,54 +113,103 @@
                                 </div>
                             </div>
                         </div>
+
+                        <p class="text-center text-muted small mt-3">
+                            <i class="bi bi-info-circle me-1"></i>
+                            A confirmation has been sent. Your order is being prepared.
+                        </p>
                     </div>
                 </div>
             </div>
         </main>
 
-        <footer th:replace="~{fragments/footer :: footer}"></footer>
+        <!-- Simple Footer -->
+        <footer class="bg-dark text-white text-center py-3 mt-auto">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6 th:text="${restaurantName}">Restaurant</h6>
+                        <p class="small mb-0" th:text="${restaurantAddress}">123 Restaurant Street</p>
+                        <p class="small mb-0" th:text="${restaurantPhone}">+91-9876543210</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Quick Links</h6>
+                        <ul class="list-unstyled small">
+                            <li><a href="#" class="text-white text-decoration-none">Menu</a></li>
+                            <li><a href="#" class="text-white text-decoration-none">Contact</a></li>
+                            <li><a href="#" class="text-white text-decoration-none">About</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Follow Us</h6>
+                        <div>
+                            <a href="#" class="text-white me-3"><i class="bi bi-facebook"></i></a>
+                            <a href="#" class="text-white me-3"><i class="bi bi-instagram"></i></a>
+                            <a href="#" class="text-white me-3"><i class="bi bi-twitter"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <hr class="my-3">
+                <p class="small mb-0">&copy; 2024 <span th:text="${restaurantName}">Restaurant</span>. All rights reserved.</p>
+            </div>
+        </footer>
     </div>
 
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom CSS for Success Animation -->
     <style>
         .success-checkmark {
             width: 80px;
             height: 80px;
-            margin: 0 auto;
-            position: relative;
-        }
-        .check-icon {
-            width: 80px;
-            height: 80px;
             border-radius: 50%;
             background: #28a745;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
-            color: white;
             animation: scaleIn 0.5s ease-out;
         }
-        .check-circle {
+        .check-icon {
+            width: 40px;
+            height: 40px;
+            position: relative;
+        }
+        .icon-line {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            border: 3px solid #28a745;
-            animation: pulse 1s ease-out infinite;
+            background: white;
+            border-radius: 2px;
+        }
+        .icon-line-left {
+            width: 12px;
+            height: 3px;
+            top: 20px;
+            left: 8px;
+            transform: rotate(-45deg);
+            animation: drawLineLeft 0.4s ease-out 0.2s forwards;
+            opacity: 0;
+        }
+        .icon-line-right {
+            width: 24px;
+            height: 3px;
+            top: 20px;
+            left: 12px;
+            transform: rotate(45deg);
+            animation: drawLineRight 0.4s ease-out 0.3s forwards;
+            opacity: 0;
         }
         @keyframes scaleIn {
-            from { transform: scale(0); }
-            to { transform: scale(1); }
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
         }
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(1.3); opacity: 0; }
+        @keyframes drawLineLeft {
+            0% { width: 0; opacity: 1; }
+            100% { width: 12px; opacity: 1; }
+        }
+        @keyframes drawLineRight {
+            0% { width: 0; opacity: 1; }
+            100% { width: 24px; opacity: 1; }
         }
     </style>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script th:src="@{/js/customer.js}"></script>
 </body>
 </html>

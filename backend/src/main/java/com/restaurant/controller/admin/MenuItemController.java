@@ -9,9 +9,16 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin/menu-items")
@@ -59,6 +66,51 @@ public class MenuItemController {
     public ApiResponse<Void> deleteMenuItem(@PathVariable Long id) {
         menuService.deleteMenuItem(id);
         return ApiResponse.successMessage("Menu item deleted successfully");
+    }
+
+    @PostMapping("/{id}/image")
+    public ApiResponse<String> uploadImage(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        try {
+            // Validate file
+            if (file.isEmpty()) {
+                return ApiResponse.error("File is empty");
+            }
+            
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                return ApiResponse.error("File must be an image");
+            }
+            
+            if (file.getSize() > 5 * 1024 * 1024) { // 5MB limit
+                return ApiResponse.error("File size must be less than 5MB");
+            }
+
+            // Create upload directory
+            String uploadDir = "uploads/menu-items";
+            Path uploadPath = Paths.get(uploadDir);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            // Generate unique filename
+            String originalFilename = file.getOriginalFilename();
+            String extension = originalFilename != null ? originalFilename.substring(originalFilename.lastIndexOf(".")) : ".jpg";
+            String filename = UUID.randomUUID().toString() + extension;
+            Path filePath = uploadPath.resolve(filename);
+
+            // Save file
+            Files.copy(file.getInputStream(), filePath);
+
+            // Update menu item with image URL
+            String imageUrl = "/uploads/menu-items/" + filename;
+            MenuItemDTO dto = menuService.getMenuItemById(id);
+            dto.setImageUrl(imageUrl);
+            menuService.updateMenuItem(id, dto);
+
+            return ApiResponse.success("Image uploaded successfully", imageUrl);
+        } catch (IOException e) {
+            return ApiResponse.error("Failed to upload image: " + e.getMessage());
+        }
     }
 
     private MenuItemResponse mapToResponse(MenuItemDTO dto) {

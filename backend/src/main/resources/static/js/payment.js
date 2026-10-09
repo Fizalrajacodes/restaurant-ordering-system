@@ -12,10 +12,19 @@ async function initPayment() {
         return;
     }
     
+    // Check if demo mode (fake keys)
+    const isDemo = RAZORPAY_KEY_ID.startsWith('rzp_test_demo') || RAZORPAY_ORDER_ID.startsWith('order_demo_');
+    
     // Enable pay button
     if (payNowBtn) {
         payNowBtn.disabled = false;
-        payNowBtn.addEventListener('click', openRazorpayCheckout);
+        if (isDemo) {
+            payNowBtn.addEventListener('click', simulateDemoPayment);
+            payNowBtn.innerHTML = '<i class="bi bi-credit-card me-2"></i>Pay Now (Demo)';
+            showToast('Demo mode: Click "Pay Now" to simulate successful payment', 'info');
+        } else {
+            payNowBtn.addEventListener('click', openRazorpayCheckout);
+        }
     }
 }
 
@@ -59,9 +68,46 @@ function openRazorpayCheckout() {
     rzp.open();
 }
 
+function simulateDemoPayment() {
+    const payNowBtn = document.getElementById('payNowBtn');
+    payNowBtn.disabled = true;
+    payNowBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing Demo Payment...';
+    
+    // Simulate payment processing delay
+    setTimeout(() => {
+        // Simulate successful payment response
+        const fakeResponse = {
+            razorpay_order_id: RAZORPAY_ORDER_ID,
+            razorpay_payment_id: 'pay_demo_' + Date.now(),
+            razorpay_signature: 'demo_signature_' + Date.now()
+        };
+        verifyPayment(fakeResponse);
+    }, 1500);
+}
+
 async function verifyPayment(response) {
     const payNowBtn = document.getElementById('payNowBtn');
     payNowBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verifying...';
+    
+    // Check if demo mode
+    const isDemo = RAZORPAY_KEY_ID.startsWith('rzp_test_demo') || RAZORPAY_ORDER_ID.startsWith('order_demo_');
+    
+    if (isDemo) {
+        // Simulate successful verification in demo mode
+        setTimeout(() => {
+            // Clear cart
+            localStorage.removeItem('restaurant_cart_' + TABLE_TOKEN);
+            sessionStorage.removeItem('current_order');
+            sessionStorage.removeItem('current_order_amount');
+            sessionStorage.removeItem('customer_name');
+            sessionStorage.removeItem('customer_email');
+            sessionStorage.removeItem('customer_mobile');
+            
+            // Redirect to success page
+            window.location.href = `/success?order=${ORDER_NUMBER}&table=${TABLE_TOKEN}`;
+        }, 500);
+        return;
+    }
     
     try {
         const verifyResponse = await axios.post(`${API_BASE_URL}/payments/verify`, {

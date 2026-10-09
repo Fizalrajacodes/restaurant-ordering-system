@@ -19,6 +19,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Optional<Order> findByOrderNumber(String orderNumber);
 
+    @Query("SELECT o FROM Order o LEFT JOIN FETCH o.orderItems oi LEFT JOIN FETCH oi.menuItem WHERE o.orderNumber = :orderNumber")
+    Optional<Order> findByOrderNumberWithItems(@Param("orderNumber") String orderNumber);
+
     List<Order> findByTableAndOrderStatusIn(RestaurantTable table, List<Order.OrderStatus> statuses);
 
     List<Order> findByOrderStatusInOrderByCreatedAtDesc(List<Order.OrderStatus> statuses);

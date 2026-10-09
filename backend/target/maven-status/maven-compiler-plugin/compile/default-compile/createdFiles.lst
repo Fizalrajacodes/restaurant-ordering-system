@@ -58,6 +58,7 @@ com\restaurant\dtos\admin\PaymentAdminResponse$PaymentAdminResponseBuilder.class
 com\restaurant\dtos\customer\CategoryDTO.class
 com\restaurant\dtos\admin\PaymentAdminResponse.class
 com\restaurant\dtos\auth\RegisterRequest$RegisterRequestBuilder.class
+com\restaurant\controller\customer\OrderSuccessController.class
 com\restaurant\controller\admin\DashboardController.class
 com\restaurant\dtos\customer\CreateOrderRequest.class
 com\restaurant\entity\OrderItem$OrderItemBuilder.class
@@ -90,6 +91,7 @@ com\restaurant\dtos\admin\OrderStatusHistoryResponse.class
 com\restaurant\dtos\admin\RecentOrderResponse$RecentOrderResponseBuilder.class
 com\restaurant\dtos\admin\OrderItemAdminResponse$OrderItemAdminResponseBuilder.class
 com\restaurant\dtos\customer\OrderResponse.class
+com\restaurant\controller\customer\CustomerMenuController.class
 com\restaurant\controller\customer\OrderController.class
 com\restaurant\RestaurantApplication.class
 com\restaurant\entity\OrderStatusHistory.class
@@ -113,6 +115,7 @@ com\restaurant\entity\Order$OrderBuilder.class
 com\restaurant\dtos\auth\RegisterRequest.class
 com\restaurant\dtos\auth\UserInfo$UserInfoBuilder.class
 com\restaurant\entity\Payment$PaymentStatus.class
+com\restaurant\controller\customer\PaymentPageController.class
 com\restaurant\dtos\customer\VerifyPaymentResponse$VerifyPaymentResponseBuilder.class
 com\restaurant\exception\ResourceNotFoundException.class
 com\restaurant\dtos\customer\CreatePaymentRequest$CreatePaymentRequestBuilder.class
@@ -125,6 +128,7 @@ com\restaurant\security\JwtAuthenticationFilter.class
 com\restaurant\dtos\customer\CartItemDTO.class
 com\restaurant\dtos\auth\UserInfo.class
 com\restaurant\entity\User$UserBuilder.class
+com\restaurant\config\WebMvcConfig.class
 com\restaurant\entity\Order.class
 com\restaurant\config\DataInitializer.class
 com\restaurant\controller\admin\TableController.class
@@ -138,6 +142,7 @@ com\restaurant\repository\MenuItemRepository.class
 com\restaurant\dtos\customer\CreatePaymentRequest.class
 com\restaurant\service\QRCodeService.class
 com\restaurant\controller\admin\CategoryController.class
+com\restaurant\controller\customer\QRCodePublicController.class
 com\restaurant\dtos\customer\VerifyPaymentResponse.class
 com\restaurant\dtos\admin\TableResponse$TableResponseBuilder.class
 com\restaurant\repository\PaymentRepository.class

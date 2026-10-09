@@ -139,7 +139,7 @@ public class QRCodesController {
                             Platform.runLater(() -> {
                                 completed[0]++;
                                 table.setQrToken(qrCode.getToken());
-                                table.setQrCodeUrl(qrCode.getQrData());
+                                table.setQrCodeUrl(qrCode.getImageUrl());
                                 if (completed[0] == totalTables) {
                                     setLoading(false);
                                     app.showInfo("Success", "QR codes generated for all tables");
@@ -180,14 +180,14 @@ public class QRCodesController {
         app.showInfo("Print QR", "Print QR code feature - coming soon!");
     }
 
-    private void handleGenerateQR(RestaurantTable table) {
+        private void handleGenerateQR(RestaurantTable table) {
         setLoading(true);
         apiService.generateQRCode(table.getId())
                 .thenAccept(qrCode -> {
                     Platform.runLater(() -> {
                         setLoading(false);
                         table.setQrToken(qrCode.getToken());
-                        table.setQrCodeUrl(qrCode.getQrData());
+                        table.setQrCodeUrl(qrCode.getImageUrl());
                         qrCodesTable.refresh();
                         app.showInfo("QR Code Generated",
                                 "QR Code generated for " + table.getTableNumber() + "\nURL: " + qrCode.getQrData());

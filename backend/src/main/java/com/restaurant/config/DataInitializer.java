@@ -167,18 +167,54 @@ public class DataInitializer {
         log.info("Created {} sample menu items", menuItems.size());
     }
 
-    private MenuItem createMenuItem(Category category, String name, String description, BigDecimal price,
-                                     MenuItem.FoodType foodType, int prepTime, boolean featured, int displayOrder) {
+private MenuItem createMenuItem(Category category, String name, String description, BigDecimal price,
+                                      MenuItem.FoodType foodType, int prepTime, boolean featured, int displayOrder) {
         return MenuItem.builder()
                 .category(category)
                 .name(name)
                 .description(description)
                 .price(price)
+                .imageUrl(getImageUrlForItem(name))
                 .foodType(foodType)
                 .isAvailable(true)
                 .preparationTimeMinutes(prepTime)
                 .isFeatured(featured)
                 .displayOrder(displayOrder)
                 .build();
+    }
+    
+    private String getImageUrlForItem(String name) {
+        // Using placeholder images from a free service
+        String slug = name.toLowerCase().replaceAll("[^a-z0-9]+", "-");
+        return "https://images.unsplash.com/photo-" + getImageId(slug) + "?w=400&h=300&fit=crop";
+    }
+    
+    private String getImageId(String slug) {
+        // Map common food items to Unsplash photo IDs
+        return switch (slug) {
+            case "chicken-65" -> "1599487488170-d11ec9c172f0";
+            case "paneer-65" -> "1585476980887-1d43b7f703c5";
+            case "veg-manchurian" -> "1603133872878-684f208fb84b";
+            case "chicken-lollipop" -> "1598103440144-83863016a988";
+            case "chicken-biryani" -> "1563379926897-6a4c0721c18f";
+            case "mutton-biryani" -> "1589301374813-1a9e1b0d8a6b";
+            case "veg-biryani" -> "1596797038530-2c1072296d4b";
+            case "prawn-biryani" -> "1565680018434-b513d5e5fd47";
+            case "butter-chicken" -> "1588166524941-3bf61b5c4c8a";
+            case "paneer-butter-masala" -> "1631452180539-96aca7d480b5";
+            case "chicken-curry" -> "1585937421618-67d9959d59e4";
+            case "dal-makhani" -> "1546833999-b9f581a1996d";
+            case "fresh-lime-soda" -> "1544145945-6472d11e4e13";
+            case "coke" -> "1554866585-cd94860890b7";
+            case "sprite" -> "1544145945-6472d11e4e13";
+            case "masala-chai" -> "1571934811356-5cc061b6821f";
+            case "cold-coffee" -> "1511920170033-f8396924c348";
+            case "mango-lassi" -> "1570075060335-17636629828a";
+            case "gulab-jamun" -> "1565958011703-44f9829ba187";
+            case "ice-cream" -> "1563805042-7684c019e1cb";
+            case "rasmalai" -> "1565958011703-44f9829ba187";
+            case "chocolate-brownie" -> "1606313564200-e75d5e30476c";
+            default -> "1567620905732-2d1ec7ab7445"; // generic food
+        };
     }
 }

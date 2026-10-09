@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time QR Code Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d3;
+        }
+        body { background: #f0f2f5; }
+        .generator-card { max-width: 900px; margin: 2rem auto; box-shadow: 0 4px 20px rgba(0,0,0,.08); border-radius: 12px; overflow: hidden; }
+        .preview-card { min-height: 340px; display: flex; align-items: center; justify-content: center; }
+        .qr-img { max-width: 260px; max-height: 260px; width: auto; height: auto; image-rendering: pixelated; }
+        .form-control:focus, .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 .25rem rgba(67,97,238,.15); }
+        .action-btn { min-width: 130px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card generator-card">
+        <div class="card-header bg-white border-bottom py-3">
+            <h4 class="mb-0"><i class="bi bi-qr-code"></i> Real-Time QR Code Generator</h4>
+            <small class="text-muted">Type below and watch the QR code update instantly as an image.</small>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="row g-4">
+                <div class="col-md-6">
+                     <form id="qrForm" autocomplete="off">
+                         <div class="mb-3">
+                             <label for="qrData" class="form-label fw-semibold">Content</label>
+                             <input type="text" id="qrData" class="form-control" placeholder="Enter URL, text, or any data" th:value="${@environment.getProperty('qr.base-url', 'http://localhost:8080')}">
+                         </div>
+                         <div class="row g-3">
+                             <div class="col-6">
+                                 <label for="qrTableToken" class="form-label fw-semibold">Restaurant Table Token</label>
+                                 <input type="text" id="qrTableToken" class="form-control" placeholder="e.g. TBL-01 (optional)">
+                             </div>
+                             <div class="col-6">
+                                 <label for="qrError" class="form-label fw-semibold">Error Correction</label>
+                                 <select id="qrError" class="form-select">
+                                     <option value="L">Low (L) - 7%</option>
+                                     <option value="M" selected>Medium (M) - 15%</option>
+                                     <option value="Q">Quartile (Q) - 25%</option>
+                                     <option value="H">High (H) - 30%</option>
+                                 </select>
+                             </div>
+                         </div>
+                         <div class="row g-3">
+                             <div class="col-6">
+                                 <label for="qrSize" class="form-label fw-semibold">Size (px)</label>
+                                 <input type="number" id="qrSize" class="form-control" value="300" min="50" max="2000" step="10">
+                             </div>
+                             <div class="col-6 d-flex align-items-end">
+                                 <button id="applyTableBtn" type="button" class="btn btn-outline-primary w-100"><i class="bi bi-link-45deg"></i> Build Table Menu URL</button>
+                             </div>
+                         </div>
+                     </form>
+                     <hr class="my-4">
+                    <div class="d-flex gap-2 flex-wrap action-btn">
+                        <button id="downloadBtn" class="btn btn-success action-btn" disabled><i class="bi bi-download"></i> Download PNG</button>
+                        <button id="copyUrlBtn" class="btn btn-outline-secondary action-btn" disabled><i class="bi bi-clipboard"></i> Copy Server URL</button>
+                    </div>
+                     <div class="form-text mt-2" id="hint">Uses fast client-side generation (ZXing-equivalent). Falls back to the server (ZXing/PNG) if needed.</div>
+                 </div>
+
+                <div class="col-md-6">
+                    <div class="preview-card bg-white border border-2 border-dashed rounded text-center">
+                        <div id="qrPlaceholder" class="text-muted">
+                            <i class="bi bi-qr-code display-1"></i>
+                            <p class="mt-2 mb-0">Enter content to generate QR</p>
+                        </div>
+                        <img id="qrImage" class="qr-img d-none" alt="QR Code">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/qrcode.min.js"></script>
+<script>
+    (function () {
+        const dataInput = document.getElementById('qrData');
+        const sizeInput = document.getElementById('qrSize');
+        const errorInput = document.getElementById('qrError');
+        const qrImage = document.getElementById('qrImage');
+        const placeholder = document.getElementById('qrPlaceholder');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const copyUrlBtn = document.getElementById('copyUrlBtn');
+        const hint = document.getElementById('hint');
+
+        let lastValue = '';
+
+        function showImage(dataUrl) {
+            qrImage.src = dataUrl;
+            qrImage.classList.remove('d-none');
+            placeholder.classList.add('d-none');
+            downloadBtn.disabled = false;
+            copyUrlBtn.disabled = false;
+        }
+
+        function showPlaceholder() {
+            qrImage.classList.add('d-none');
+            qrImage.src = '';
+            placeholder.classList.remove('d-none');
+            downloadBtn.disabled = true;
+            copyUrlBtn.disabled = true;
+        }
+
+        function generateClientSide(text, size, errorCorrection) {
+            try {
+                const canvas = document.createElement('canvas');
+                QRCode.toCanvas(canvas, text, {
+                    width: size,
+                    margin: 1,
+                    errorCorrectionLevel: errorCorrection.toLowerCase(),
+                    scale: 1
+                });
+                const dataUrl = canvas.toDataURL('image/png');
+                showImage(dataUrl);
+                hint.textContent = 'Generated instantly (client-side).';
+                return dataUrl;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function generateServerSide(text, size, errorCorrection) {
+            const params = new URLSearchParams();
+            params.set('data', text);
+            params.set('size', size);
+            params.set('errorCorrection', errorCorrection);
+            fetch('/api/qr/image?' + params.toString())
+                .then(response => {
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    return response.blob();
+                })
+                .then(blob => {
+                    const dataUrl = URL.createObjectURL(blob);
+                    showImage(dataUrl);
+                    hint.textContent = 'Generated on server via ZXing (real-time PNG image).';
+                    copyUrlBtn.onclick = () => {
+                        const url = '/api/qr/image?' + params.toString();
+                        navigator.clipboard.writeText(window.location.origin + url).then(() => {
+                            copyUrlBtn.textContent = 'Copied!';
+                            setTimeout(() => copyUrlBtn.textContent = '<i class="bi bi-clipboard"></i> Copy Server URL', 1500);
+                        });
+                    };
+                })
+                .catch(err => {
+                    console.error('QR generation failed', err);
+                    showPlaceholder();
+                    hint.textContent = 'Failed to generate QR code: ' + err.message;
+                });
+        }
+
+        function generate(text) {
+            if (!text) {
+                showPlaceholder();
+                return;
+            }
+            const size = Math.max(50, Math.min(2000, parseInt(sizeInput.value, 10) || 300));
+            const errorCorrection = (errorInput.value || 'M');
+
+            // Prefer instant client-side generation; fall back to server if library missing/error.
+            if (typeof QRCode !== 'undefined' && QRCode.toCanvas) {
+                const dataUrl = generateClientSide(text, size, errorCorrection);
+                if (dataUrl) {
+                    downloadBtn.onclick = () => {
+                        const a = document.createElement('a');
+                        a.href = dataUrl;
+                        a.download = 'qr-code.png';
+                        a.click();
+                    };
+                    copyUrlBtn.onclick = () => {
+                        const params = new URLSearchParams();
+                        params.set('data', text);
+                        params.set('size', size);
+                        params.set('errorCorrection', errorCorrection);
+                        navigator.clipboard.writeText(window.location.origin + '/api/qr/image?' + params.toString()).then(() => {
+                            copyUrlBtn.textContent = 'Copied!';
+                            setTimeout(() => copyUrlBtn.textContent = '<i class="bi bi-clipboard"></i> Copy Server URL', 1500);
+                        });
+                    };
+                    return;
+                }
+            }
+            generateServerSide(text, size, errorCorrection);
+        }
+
+        let typingTimer;
+        function scheduleGenerate() {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+                generate(dataInput.value.trim());
+            }, 200);
+        }
+
+        dataInput.addEventListener('input', scheduleGenerate);
+        sizeInput.addEventListener('input', () => { if (dataInput.value.trim()) generate(dataInput.value.trim()); });
+        errorInput.addEventListener('change', () => { if (dataInput.value.trim()) generate(dataInput.value.trim()); });
+
+        dataInput.addEventListener('input', () => {
+            const text = dataInput.value.trim();
+            if (!text) {
+                clearTimeout(typingTimer);
+                showPlaceholder();
+            }
+        });
+    })();
+</script>
+</body>
+</html>
